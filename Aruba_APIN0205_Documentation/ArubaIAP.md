@@ -9,8 +9,13 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
 
 - **Step 1**: Configure your computer with a static IP (I used 192.168.1.10).
 - **Step 2**: Power cycle the AP:
-- **Step 1**: As the AP boots, stop autoboot by pressing 'Enter'.
-- **Step 2**: Execute the following commands:
+- **Step 3**: As the AP boots, stop autoboot by pressing 'Enter'. You should see:
+
+  ```
+  apboot>
+  ```
+  
+- **Step 4**: Execute the following commands:
 
   ```
   upgrade os 0 172.16.1.13:/ArubaInstant_Taurus_6.5.4.15_73677
