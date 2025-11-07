@@ -1,7 +1,7 @@
 ### Operating System Upgrade and Aruba Instant Access Points Configuration Documentation
 ### Requirements!
-- [TFTP Server](Aruba_APIN0205_Documentation/tftp server.md)
-- [Aruba IAP Firmware](https://github.com/Deathraymind/StemLabMK2/blob/main/ArubaInstant_Taurus_6.5.4.15_73677)
+- [TFTP Server](https://github.com/team3011/StemLab_Cyber/blob/main/Aruba_APIN0205_Documentation/tftp%20server.md)
+- [Aruba IAP Firmware](https://github.com/team3011/StemLab_Cyber/blob/main/Aruba_APIN0205_Documentation/ArubaInstant_Taurus_6.5.4.15_73677)
 
 #### 1. Upgrade OS Command:
 
