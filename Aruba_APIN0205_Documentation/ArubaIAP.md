@@ -18,11 +18,9 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   
 - **Step 3**: Power cycle the AP:
 - **Step 4**: As the AP boots, stop autoboot by pressing 'Enter'. You should see:
-
   ```
   apboot>
   ```
-  
 - **Step 5**: Configure network settings in apboot
   Set your TFTP and IP parameters
   ```
@@ -34,7 +32,6 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   ```
   printenv
   ```
-
 - **Step 6**: Flash the Instant image
   ```
   upgrade os 0 ArubaInstant_Taurus_6.5.4.15_73677
@@ -45,14 +42,26 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
 - **Step 7**: Enabling the AP
   ```
   proginv system ccode CCODE-RW-de6fdb363ff04c13ee261ec04fbb01bdd482d1cd
+  invent -w
+  factory_reset
   ```
 - **Step 8**: Save and reboot
   Once the upgrade is complete:
   ```
   saveenv
-  reset
+  boot
   ```
-- **Step 9**: Verify Instant Mode enabled
+- **Step 9**:
+  To configure an IAP as the master:
+  ```
+  (Instant AP)# iap-master
+  ```
+  To verify the master configuration:
+  ```
+  (Instant AP)# show ap-env
+  ```
+  
+- **Step 10**: Verify Instant Mode enabled
   After the reboot:
     The AP should broadcast a WiFi SSID like SetMeUp-xx:xx:xx<br>
     You can connect and access the web UI at:<br>
@@ -64,40 +73,10 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
    stopped here<br>
 <br>
 
-#### 2. Proginv System Ccode Command:
 
-To modify the system's configuration code (ccode), essential for licensing and features management, use the command:
-```
-proginv system ccode CCODE-RW-de6fdb363ff04c13ee261ec04fbb01bdd482d1cd
-```
 
-#### 3. Invent -w Command:
 
-This command likely interacts with the device's inventory or wireless configuration settings. Execute it to prepare the device for operation:
-```
-invent -w
-```
 
-#### 4. Factory Reset Command:
-
-To reset the device to its factory default settings, use:
-```
-factory_reset
-```
-
-#### 5. Saveenv Command:
-
-Execute the following command to save current configurations:
-```
-saveenv
-```
-
-#### 6. Boot Command:
-
-Initiate the device's boot process to load OS and configurations:
-```
-boot
-```
 
 #### 7. Master AP Configuration:
 
