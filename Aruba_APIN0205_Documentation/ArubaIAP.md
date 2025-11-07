@@ -40,6 +40,26 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   upgrade os 0 ArubaInstant_Taurus_6.5.4.15_73677
   ```
   Wait for it to transfer and flash - it can take several minutes.
+
+- **Step 7**: Save and reboot
+  Once the upgrade is complete:
+  ```
+  saveenv
+  reset
+  ```
+- **Step 8**: Verify Instant Mode enabled
+  After the reboot:
+    The AP should broadcast a WiFi SSID like SetMeUp-xx:xx:xx
+    You can connect and access the web UI at:
+      http://instant.arubanetworks.com
+      https://192.168.1.1
+    Default login is admin/[blank]
+
+
+   stopped here
+
+
+  
   
 - Replace 172.16.1.13 with the ip address of youre tftp server. 
 ### This takes a long time..
