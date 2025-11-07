@@ -49,15 +49,15 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   ```
 - **Step 8**: Verify Instant Mode enabled
   After the reboot:
-    The AP should broadcast a WiFi SSID like SetMeUp-xx:xx:xx
-    You can connect and access the web UI at:
-      http://instant.arubanetworks.com
-      https://192.168.1.1
-    Default login is admin/[blank]
+    The AP should broadcast a WiFi SSID like SetMeUp-xx:xx:xx<br>
+    You can connect and access the web UI at:<br>
+      http://instant.arubanetworks.com<br>
+      https://192.168.1.1<br>
+    Default login is admin/[blank]<br>
 
-
-   stopped here
-
+<br>
+   stopped here<br>
+<br>
 
   
   
