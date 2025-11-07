@@ -51,12 +51,14 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   saveenv
   boot
   ```
-- **Step 9**:
+  This will take a while to reboot
+- **Step 9**: Log into AP with admin/admin
+- **Step 10**:
   To configure an IAP as the master:
   ```
-  (Instant AP)# iap-master
+  iap-master
   ```
-  To verify the master configuration:
+  To verify the master configuration you must be connected to a DHCP server:
   ```
   (Instant AP)# show ap-env
   ```
