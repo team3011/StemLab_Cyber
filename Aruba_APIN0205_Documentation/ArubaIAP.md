@@ -42,13 +42,17 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   ```
   Wait for each to transfer and flash - it can take several minutes.
 
-- **Step 7**: Save and reboot
+- **Step 7**: Enabling the AP
+  ```
+  proginv system ccode CCODE-RW-de6fdb363ff04c13ee261ec04fbb01bdd482d1cd
+  ```
+- **Step 8**: Save and reboot
   Once the upgrade is complete:
   ```
   saveenv
   reset
   ```
-- **Step 8**: Verify Instant Mode enabled
+- **Step 9**: Verify Instant Mode enabled
   After the reboot:
     The AP should broadcast a WiFi SSID like SetMeUp-xx:xx:xx<br>
     You can connect and access the web UI at:<br>
