@@ -24,11 +24,15 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   ```
   
 - **Step 5**: Configure network settings in apboot
-- Set your TFTP and IP parameters
+  Set your TFTP and IP parameters
   ```
   setenv ipaddr 192.168.1.20
   setenv netmask 255.255.255.0
   setenv serverip 192.168.1.10
+  ```
+  Verify with:
+  ```
+  printenv
   ```
 
   ```
