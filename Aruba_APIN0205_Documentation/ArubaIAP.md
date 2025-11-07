@@ -54,7 +54,7 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   This will take a while to reboot
 - **Step 9**: Log into AP with admin/admin
 - **Step 10**:
-  To configure an IAP as the master:
+  To configure an IAP as the master, if this is not a master AP, skip this step:
   ```
   iap-master
   ```
@@ -72,23 +72,3 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
 - **Step 11**: Setup in GUI
   Click on system in the top right, click admin tab, set password.<br>
   
-
-<br>
-   stopped here<br>
-<br>
-
-
-
-
-
-
-
-
-### Accessing the Virtual Controller:
-
-To access the virtual controller on the master AP, follow this link: [Aruba Networks Virtual Controller](https://setmeup.arubanetworks.com:4343/#home)
-
-- **User**: admin
-- **Password**: admin
-
-After setting up the master AP, additional Aruba APs will automatically assume slave roles, simplifying network management and ensuring uniform configurations.
