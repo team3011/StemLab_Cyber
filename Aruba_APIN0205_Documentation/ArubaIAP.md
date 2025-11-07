@@ -38,8 +38,9 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
 - **Step 6**: Flash the Instant image
   ```
   upgrade os 0 ArubaInstant_Taurus_6.5.4.15_73677
+  upgrade os 1 ArubaInstant_Taurus_6.5.4.15_73677
   ```
-  Wait for it to transfer and flash - it can take several minutes.
+  Wait for each to transfer and flash - it can take several minutes.
 
 - **Step 7**: Save and reboot
   Once the upgrade is complete:
@@ -58,21 +59,6 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
 <br>
    stopped here<br>
 <br>
-
-  
-  
-- Replace 172.16.1.13 with the ip address of youre tftp server. 
-### This takes a long time..
-
-  ```
-  upgrade os 1 172.16.1.13:/ArubaInstant_Taurus_6.5.4.15_73677
-  ```
-### This takes a long time..
-
-  - These commands initiate the OS upgrade on the IAPs.
-  - `os 0` and `os 1` specify separate partitions for the new OS on each AP.
-  - `172.16.1.13` is the IP address where the new OS image is located.
-  - `/ArubaInstant_Taurus_6.5.4.15_73677` denotes the exact location and filename of the new OS image.
 
 #### 2. Proginv System Ccode Command:
 
