@@ -35,9 +35,12 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   printenv
   ```
 
+- **Step 6**: Flash the Instant image
   ```
-  upgrade os 0 172.16.1.13:/ArubaInstant_Taurus_6.5.4.15_73677
+  upgrade os 0 ArubaInstant_Taurus_6.5.4.15_73677
   ```
+  Wait for it to transfer and flash - it can take several minutes.
+  
 - Replace 172.16.1.13 with the ip address of youre tftp server. 
 ### This takes a long time..
 
