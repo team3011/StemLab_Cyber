@@ -13,8 +13,6 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
 
   ```
   sudo apt-get install screen
-  ```
-  ```
   sudo screen /dev/ttyUSB0 9600
   ```
   
@@ -25,7 +23,13 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   apboot>
   ```
   
-- **Step 4**: Execute the following commands:
+- **Step 5**: Configure network settings in apboot
+- Set your TFTP and IP parameters
+  ```
+  setenv ipaddr 192.168.1.20
+  setenv netmask 255.255.255.0
+  setenv serverip 192.168.1.10
+  ```
 
   ```
   upgrade os 0 172.16.1.13:/ArubaInstant_Taurus_6.5.4.15_73677
