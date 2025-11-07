@@ -58,18 +58,20 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   ```
   iap-master
   ```
-  To verify the master configuration you must be connected to a DHCP server:
+  To verify the master configuration you must be connected to a DHCP server then power cycle the AP:
   ```
-  (Instant AP)# show ap-env
+  show ap-env
   ```
-  
 - **Step 10**: Verify Instant Mode enabled
   After the reboot:
     The AP should broadcast a WiFi SSID like SetMeUp-xx:xx:xx<br>
     You can connect and access the web UI at:<br>
       http://instant.arubanetworks.com<br>
-      https://192.168.1.1<br>
-    Default login is admin/[blank]<br>
+      https://192.168.1.149<br>
+    Default login is admin/admin<br>
+- **Step 11**: Setup in GUI
+  Click on system in the top right, click admin tab, set password.<br>
+  
 
 <br>
    stopped here<br>
@@ -80,16 +82,7 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
 
 
 
-#### 7. Master AP Configuration:
 
-To configure an IAP as the master:
-```
-(Instant AP)# iap-master
-```
-To verify the master configuration:
-```
-(Instant AP)# show ap-env
-```
 
 ### Accessing the Virtual Controller:
 
