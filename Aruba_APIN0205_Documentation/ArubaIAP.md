@@ -13,6 +13,8 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
 
   ```
   sudo apt-get install screen
+  ```
+  ```
   sudo screen /dev/ttyUSB0 9600
   ```
   
