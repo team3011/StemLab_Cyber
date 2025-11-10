@@ -94,6 +94,9 @@ exit 0
   chmod 700 /etc/tailscale
   ```
   Restart and authenticate one more time<br>
+  ```
+  tailscale up
+  ```
   Then, in the Tailscale admin console, approve the subnet route.<br>
   Now from any Tailscale-connected device, you can access your LAN devices (e.g., 10.42.1.x).
 
