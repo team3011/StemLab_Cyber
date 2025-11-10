@@ -95,6 +95,7 @@ exit 0
   ```
   Restart and authenticate one more time<br>
   ```
+  /etc/init.d/tailscaled start
   tailscale up
   ```
   Then, in the Tailscale admin console, approve the subnet route.<br>
