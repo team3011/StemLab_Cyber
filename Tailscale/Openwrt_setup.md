@@ -37,7 +37,7 @@
   ```
   Before the line exit 0, add your tailscale up command:
   ```
-  tailscale up --advertise-routes=192.168.1.0/24 --advertise-exit-node
+  tailscale up --advertise-routes=10.42.1.0/24 --advertise-exit-node
   exit 0
   ```
 
