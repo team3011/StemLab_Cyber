@@ -77,7 +77,7 @@ exit 0
   ```
   PROG=/usr/sbin/tailscaled --state=/etc/tailscale/tailscaled.state
   ```
-  Save and exit (Esc, then :wq).
+  Save and exit (Esc, then :wq)<br>
   Set permissions:
   ```
   chown -R root:root /etc/tailscale
