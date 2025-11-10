@@ -71,14 +71,27 @@ exit 0
   ```
   Find the line that starts with:
   ```
-  procd_set_param command /usr/sbin/tailscaled
+  PROG=/usr/sbin/tailscaled
   ```
   Change it to:
   ```
-  procd_set_param command /usr/sbin/tailscaled --state=/etc/tailscale/tailscaled.state
+  PROG=/usr/sbin/tailscaled --state=/etc/tailscale/tailscaled.state
   ```
   Save and exit (Esc, then :wq).
+  Set permissions:
+  ```
+  chown -R root:root /etc/tailscale
+  chmod 700 /etc/tailscale
+  ```
   Restart and authenticate one more time<br>
   Then, in the Tailscale admin console, approve the subnet route.<br>
   Now from any Tailscale-connected device, you can access your LAN devices (e.g., 10.42.1.x).
+
+### 3. Test it
+  SSH back into the router
+  run the following:
+  ```
+  tailscale status
+  ```
+  You should still be logged in, no re-auth required.
   
