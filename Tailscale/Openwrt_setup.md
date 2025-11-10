@@ -17,28 +17,22 @@
   Replace all the contents of the file with this:
   ```
   #!/bin/sh
-# /etc/rc.local ... Tailscale auto setup for OpenWrt
+  ### --- 1...... Enable IP forwarding ---
+  # Make sure IPv4 forwarding is on so Tailscale can route traffic
+  echo 1 > /proc/sys/net/ipv4/ip_forward
 
-### --- 1...... Enable IP forwarding ---
-# Make sure IPv4 forwarding is on so Tailscale can route traffic
-echo 1 > /proc/sys/net/ipv4/ip_forward
+  ### --- 2...... Start Tailscale if not already running ---
+  /etc/init.d/tailscaled enable
+  /etc/init.d/tailscaled start
 
-### --- 2...... Ensure firewall rules are ready ---
-# Allow NAT for Tailscale traffic out the WAN
-# Replace 'eth0' below if your WAN interface is named differently (e.g. pppoe-wan, wan)
-iptables -t nat -A POSTROUTING -s 192.168.179.0/24 -o wwan -j MASQUERADE
+  ### --- 3...... Bring Tailscale up with your configuration ---
+  # Advertise your LAN subnet and act as an exit node
+  # Replace 192.168.1.0/24 with your LAN subnet
+  /usr/sbin/tailscale up --advertise-routes=10.42.1.0/24 --advertise-exit-node --reset
 
-### --- 3...... Start Tailscale if not already running ---
-/etc/init.d/tailscaled enable
-/etc/init.d/tailscaled start
-
-### --- 4...... Bring Tailscale up with your configuration ---
-# Advertise your LAN subnet and act as an exit node
-# Replace 192.168.1.0/24 with your LAN subnet
-/usr/sbin/tailscale up --advertise-routes=10.42.1.0/24 --advertise-exit-node --reset
-
-### --- 5...... Done ---
-exit 0
+  ### --- 4......
+  nft -f /etc/nftables.conf
+  exit 0
   ```
   Save and exit (Esc, then :wq)<br>
   Then press {Enter}<br>
