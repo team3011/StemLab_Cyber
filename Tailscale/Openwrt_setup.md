@@ -31,14 +31,13 @@
   Then, in the Tailscale admin console, approve the subnet route.<br>
   Now from any Tailscale-connected device, you can access your LAN devices (e.g., 10.42.1.x).
 ### 4. Persistent Tailscale Configuration
+  Edit the file:
   ```
-  uci set tailscale.@tailscale[0].args="--advertise-routes=192.168.1.0/24 --advertise-exit-node"
-  uci commit tailscale
-  /etc/init.d/tailscaled restart
+  vi /etc/rc.local
   ```
-### 5. Persistent IP Forwarding
+  Before the line exit 0, add your tailscale up command:
   ```
-  uci set system.@system[0].ip_forward='1'
-  uci commit system
-  /etc/init.d/system restart
+  tailscale up --advertise-routes=192.168.1.0/24 --advertise-exit-node
+  exit 0
   ```
+
