@@ -77,10 +77,10 @@ exit 0
   USE_PROCD=1
   
   start_service() {
-      procd_open_instance
-      procd_set_param command procd_set_param command /usr/sbin/tailscaled --state=/etc/tailscale/tailscaled.state
-      procd_set_param respawn
-      procd_close_instance
+    procd_open_instance
+    procd_set_param command /usr/sbin/tailscaled --state=/etc/tailscale/tailscaled.state
+    procd_set_param caps "net_admin net_bind_service"
+    procd_close_instance
   }
   
   stop_service() {
