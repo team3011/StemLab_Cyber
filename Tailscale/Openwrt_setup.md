@@ -40,16 +40,45 @@ iptables -t nat -A POSTROUTING -s 192.168.179.0/24 -o wwan -j MASQUERADE
 ### --- 5...... Done ---
 exit 0
   ```
-  To save and exit type press {ESC} then:
-  ```
-  :wq
-  ```
+  Save and exit (Esc, then :wq)<br>
   Then press {Enter}<br>
   run the following command:
   ```
   chmod +x /etc/rc.local
   ```
   Reboot the router<br>
+  Run the following command:
+  ```
+  tailscale up
+  ```
+  Authenticate your Tailscale instance<br>
+  Then stop Tailscale
+  ```
+  /etc/init.d/tailscaled stop
+  ```
+  Create a permanent directory
+  ```
+  mkdir -p /etc/tailscale
+  ```
+  Move existing state files
+  ```
+  mv /var/lib/tailscale/* /etc/tailscale/ 2>/dev/null
+  ```
+  Tell tailscaled to use that directory.
+  Open /etc/init.d/tailscaled in vi:
+  ```
+  vi /etc/init.d/tailscaled
+  ```
+  Find the line that starts with:
+  ```
+  procd_set_param command /usr/sbin/tailscaled
+  ```
+  Change it to:
+  ```
+  procd_set_param command /usr/sbin/tailscaled --state=/etc/tailscale/tailscaled.state
+  ```
+  Save and exit (Esc, then :wq).
+  Restart and authenticate one more time<br>
   Then, in the Tailscale admin console, approve the subnet route.<br>
   Now from any Tailscale-connected device, you can access your LAN devices (e.g., 10.42.1.x).
   
