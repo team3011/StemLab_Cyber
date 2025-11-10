@@ -90,6 +90,8 @@ exit 0
   Save and exit (Esc, then :wq)<br>
   Set permissions:
   ```
+  mkdir -p /etc/tailscale
+  touch /etc/tailscale/tailscaled.state
   chown -R root:root /etc/tailscale
   chmod 700 /etc/tailscale
   ```
