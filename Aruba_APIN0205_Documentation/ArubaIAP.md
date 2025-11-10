@@ -62,7 +62,7 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   ```
   show ap-env
   ```
-- **Step 10**: Verify Instant Mode enabled
+- **Step 11**: Verify Instant Mode enabled if this AP is the master
   After the reboot:
     The AP should broadcast a WiFi SSID like SetMeUp-xx:xx:xx<br>
     You can connect and access the web UI at:<br>
