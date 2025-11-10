@@ -64,7 +64,7 @@ This documentation provides step-by-step instructions for setting up a TFTP (Tri
 To move the files to the /tftp directory use this command
 
    ```bash
-   mv ArubaInstant_Taurus_6.5.4.25_86114 /tftp
+   mv ~/Downloads/ArubaInstant_Taurus_6.5.4.15_73677 /tftp
    ```
 
 ## Step 5: Restart Tftpd-hpa
