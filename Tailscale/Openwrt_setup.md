@@ -2,13 +2,13 @@
 ### Requirements!
 - none
   
-#### 1. Install Tailscale on OpenWrt:
+### 1. Install Tailscale on OpenWrt:
   SSH into your router and run:
   ```
   opkg update
   opkg install tailscale
   ```
-#### 2. Start and Authenticate:
+### 2. Start and Authenticate:
   ```
   /etc/init.d/tailscaled enable
   /etc/init.d/tailscaled start
@@ -16,7 +16,7 @@
   ```
   You’ll get a URL to authenticate in your browser.<br>
   After login, your router appears in the Tailscale admin console.
-#### 3. Share Local Network (LAN) — Subnet Router:
+### 3. Share Local Network (LAN) — Subnet Router:
   Let’s assume your LAN subnet is 10.42.1.0/24.<br>
   Enable subnet routing and make the router route all remote traffic through it:
   ```
@@ -30,3 +30,15 @@
   ```
   Then, in the Tailscale admin console, approve the subnet route.<br>
   Now from any Tailscale-connected device, you can access your LAN devices (e.g., 10.42.1.x).
+### 4. Persistent Tailscale Configuration
+  ```
+  uci set tailscale.@tailscale[0].args="--advertise-routes=192.168.1.0/24 --advertise-exit-node"
+  uci commit tailscale
+  /etc/init.d/tailscaled restart
+  ```
+### 5. Persistent IP Forwarding
+  ```
+  uci set system.@system[0].ip_forward='1'
+  uci commit system
+  /etc/init.d/system restart
+  ```
