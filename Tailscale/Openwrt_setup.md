@@ -35,6 +35,7 @@
   ```
   vi /etc/rc.local
   ```
+  To modify the file press i then {enter}
   Replace all the contents of the file with this:
   ```
   #!/bin/sh
