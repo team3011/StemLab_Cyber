@@ -104,7 +104,7 @@ To move the files to the /tftp directory use this command
 1. To avoid errors, ensure that the file you add to the TFTP directory has appropriate permissions. You can use the following command to set permissions on a specific file, for example, `file.bin`:
 
    ```bash
-   sudo chmod 666 /tftp/file.bin
+   sudo chmod 666 /tftp/ArubaInstant_Taurus_6.5.4.15_73677
    ```
 
 Your TFTP server is now set up and ready to serve files. You can use it for tasks such as network booting or transferring configuration files to network devices.
