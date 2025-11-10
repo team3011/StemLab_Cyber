@@ -69,13 +69,23 @@ exit 0
   ```
   vi /etc/init.d/tailscaled
   ```
-  Find the line that starts with:
+  Replace the file with
   ```
-  PROG=/usr/sbin/tailscaled
-  ```
-  Change it to:
-  ```
-  PROG=/usr/sbin/tailscaled --state=/etc/tailscale/tailscaled.state
+  #!/bin/sh /etc/rc.common
+  # Tailscaled init script for OpenWrt
+  START=99
+  USE_PROCD=1
+  
+  start_service() {
+      procd_open_instance
+      procd_set_param command procd_set_param command /usr/sbin/tailscaled --state=/etc/tailscale/tailscaled.state
+      procd_set_param respawn
+      procd_close_instance
+  }
+  
+  stop_service() {
+      killall tailscaled 2>/dev/null
+  }
   ```
   Save and exit (Esc, then :wq)<br>
   Set permissions:
