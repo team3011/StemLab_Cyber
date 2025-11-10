@@ -58,12 +58,12 @@ During the upgrade process of the operating system (OS) for Aruba Instant Access
   ```
   iap-master
   ```
-  To verify the master configuration you must be connected to a DHCP server then power cycle the AP:
+  To verify the master configuration you must be connected to a DHCP server then power cycle the AP then run the following:
   ```
   show ap-env
   ```
-- **Step 11**: Verify Instant Mode enabled if this AP is the master
-  After the reboot:
+- **Step 11**: Verify Instant Mode enabled if this AP is the master<br>
+  After the reboot:<br>
     The AP should broadcast a WiFi SSID like SetMeUp-xx:xx:xx<br>
     You can connect and access the web UI at:<br>
       http://instant.arubanetworks.com<br>
