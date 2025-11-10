@@ -45,7 +45,11 @@ exit 0
   :wq
   ```
   Then press {Enter}<br>
+  run the following command:
+  ```
+  chmod +x /etc/rc.local
+  ```
   Reboot the router<br>
   Then, in the Tailscale admin console, approve the subnet route.<br>
   Now from any Tailscale-connected device, you can access your LAN devices (e.g., 10.42.1.x).
-
+  
