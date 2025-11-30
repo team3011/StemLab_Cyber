@@ -1,6 +1,15 @@
 ### Setup OpenWrt to act as a Tailscale exit node with subnet access
 ### Requirements!
 - none
+
+### 1. Flash OpenWRT onto microSD card using balenaEtcher
+### 2. connect the rpi to a computer
+  using a network cable<br>
+  manually set computer to 102.168.1.2/255.255.255.0/192.168.1.1/8.8.8.8<br>
+  open browser and go to 192.168.1.1<br>
+  username is root/[blank]<br>
+  set password
+### 3. 
   
 ### 1. Install Tailscale on OpenWrt:
   SSH into your router and run:
