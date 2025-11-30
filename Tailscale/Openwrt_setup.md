@@ -9,7 +9,19 @@
   open browser and go to 192.168.1.1<br>
   username is root/[blank]<br>
   set password
-### 3. 
+### 3. Setup ALFA usb dongle
+  goto Network -> Wireless
+  click Scan
+  connect to an SSID
+  click save and apply
+  goto System -> Software
+  click update lists
+  install kmod-mt76x2u
+  reboot
+  goto Network -> Wireless
+  remove everything associated with the built in nic
+  click scan on radio1 and connect to SSID
+  
   
 ### 1. Install Tailscale on OpenWrt:
   SSH into your router and run:
