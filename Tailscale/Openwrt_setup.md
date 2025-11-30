@@ -22,6 +22,7 @@
   remove everything associated with the built in nic<br>
   click scan on radio1 and connect to SSID<br>
   click save and apply<br>
+  verify connection by pinging openwrt.org
 ### 4. Setup bridge
   goto Network -> Interfaces<br>
   click on edit on the lan<br>
