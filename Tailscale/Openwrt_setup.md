@@ -4,13 +4,24 @@
 
 ### 1. Flash OpenWRT onto microSD card using balenaEtcher
   after you have flashed the microSD card with openwrt
-  insert the usb reader into a ubuntu workstation
   open a terminal and complete the following:
   ```
   sudo apt-get update
   sudo apt-get update
   sudo apt install gparted
+  sudo gparted
   ```
+  make a mental note of the preexisting drive<br>
+  insert the usb reader into a ubuntu workstation<br>
+  click GParted -> Refresh devices
+  now on the right side drill down you should have the original and sda
+  select sda<br>
+  ####1. Resize the second partition
+  Right-click on the second partition (/dev/sda2).<br>
+  Select Resize/Move.<br>
+  Set the new size to 1GB<br>
+  Click Resize/Move.<br>
+
   
 ### 2. connect the rpi to a computer
   using a network cable<br>
