@@ -42,9 +42,13 @@
   ```
   Then enable and start the daemon:
   ```
-  /etc/init.d/tailscale enable
-  /etc/init.d/tailscale start
+  tailscale up --advertise-routes=10.42.1.0/24 --advertise-exit-node
   ```
+
+
+
+
+
 ### 1. Install Tailscale on OpenWrt:
   SSH into your router and run:
   ```
