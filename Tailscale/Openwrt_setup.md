@@ -56,7 +56,10 @@
   /etc/init.d/tailscale restart
   tailscale status
   ```
-
+  update tailscale
+  ```
+  tailscale update
+  ```
 
 ### 1. Install Tailscale on OpenWrt:
   SSH into your router and run:
