@@ -5,7 +5,7 @@
 ### 1. Flash OpenWRT onto microSD card using balenaEtcher
 ### 2. connect the rpi to a computer
   using a network cable<br>
-  manually set computer to 102.168.1.2/255.255.255.0/192.168.1.1/8.8.8.8<br>
+  manually set computer to 122.168.1.2/255.255.255.0/192.168.1.1/8.8.8.8<br>
   open browser and go to 192.168.1.1<br>
   username is root/[blank]<br>
   set password
