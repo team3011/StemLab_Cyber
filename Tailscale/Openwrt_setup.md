@@ -35,7 +35,12 @@
   goto System -> Software<br>
   click update lists<br>
   install tailscale<br>
-  
+  ssh in to openwrt<br>
+  Then enable and start the daemon:
+  ```
+  /etc/init.d/tailscale enable
+  /etc/init.d/tailscale start
+  ```
 ### 1. Install Tailscale on OpenWrt:
   SSH into your router and run:
   ```
