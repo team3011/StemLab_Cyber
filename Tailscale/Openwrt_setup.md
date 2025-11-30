@@ -16,7 +16,7 @@
   click GParted -> Refresh devices
   now on the right side drill down you should have the original and sda
   select sda<br>
-  ####1. Resize the second partition
+  #### 1. Resize the second partition
   Right-click on the second partition (/dev/sda2).<br>
   Select Resize/Move.<br>
   Set the new size to 1GB<br>
