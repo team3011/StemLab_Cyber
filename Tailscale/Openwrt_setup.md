@@ -46,13 +46,16 @@
   ```
   Then make persistent on boot:
   ```
-  uci set tailscale.@tailscale[0].flags='--advertise-routes=10.42.1.0/24 --advertise-exit-node'
+  uci set tailscale.tailscale=service
+  uci set tailscale.tailscale.enabled='1'
+  uci set tailscale.tailscale.flags='--advertise-routes=10.42.1.0/24 --advertise-exit-node'
   uci commit tailscale
-  /etc/init.d/tailscale enable
-  /etc/init.d/tailscale restart
   ```
-
-
+  restart tailscale
+  ```
+  /etc/init.d/tailscale restart
+  tailscale status
+  ```
 
 
 ### 1. Install Tailscale on OpenWrt:
