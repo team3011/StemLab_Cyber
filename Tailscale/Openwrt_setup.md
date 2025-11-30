@@ -31,7 +31,10 @@
   set computer network to dhcp<br>
   open browser and go to 10.42.1.1<br>
   verify connection by pinging openwrt.org
-  
+### 5. Setup Tailscale
+  goto System -> Software<br>
+  click update lists<br>
+  install tailscale<br>
   
 ### 1. Install Tailscale on OpenWrt:
   SSH into your router and run:
