@@ -23,11 +23,11 @@
   click scan on radio1 and connect to SSID<br>
   click save and apply<br>
 ### 4. Setup bridge
-  goto Network -> Interfaces
-  click on edit on the lan
-  set ip address to 10.42.1.1
+  goto Network -> Interfaces<br>
+  click on edit on the lan<br>
+  set ip address to 10.42.1.1<br>
   click save and apply<br>
-  set computer network to dhcp
+  set computer network to dhcp<br>
   open browser and go to 10.42.1.1<br>
   
   
