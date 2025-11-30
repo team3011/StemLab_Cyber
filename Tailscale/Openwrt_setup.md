@@ -38,7 +38,7 @@
   ssh in to openwrt<br>
   Install iptables<br>
   ```
-  opkg install iptables iptables-mod-nat iptables-mod-filter kmod-ipt-nat kmod-ipt-conntrack kmod-ipt-nat6 kmod-nf-nat kmod-nf-conntrack
+  opkg install iptables iptables-mod-tproxy kmod-nf-nat kmod-nf-conntrack
   ```
   Then enable and start the daemon:
   ```
