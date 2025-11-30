@@ -28,7 +28,7 @@
   set ip address to 10.42.1.1
   click save and apply<br>
   set computer network to dhcp
-  open browser and go to 192.168.1.1<br>
+  open browser and go to 10.42.1.1<br>
   
   
 ### 1. Install Tailscale on OpenWrt:
