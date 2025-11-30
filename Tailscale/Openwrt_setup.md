@@ -26,7 +26,7 @@
 ### 4. Setup bridge
   goto Network -> Interfaces<br>
   click on edit on the lan<br>
-  set ip address to 10.42.1.1<br>
+  set ip address to 10.42.1.1/24<br>
   click save and apply<br>
   set computer network to dhcp<br>
   open browser and go to 10.42.1.1<br>
