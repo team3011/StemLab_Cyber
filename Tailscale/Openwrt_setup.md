@@ -30,6 +30,7 @@
   click save and apply<br>
   set computer network to dhcp<br>
   open browser and go to 10.42.1.1<br>
+  verify connection by pinging openwrt.org
   
   
 ### 1. Install Tailscale on OpenWrt:
