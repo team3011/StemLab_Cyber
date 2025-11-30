@@ -10,17 +10,25 @@
   username is root/[blank]<br>
   set password
 ### 3. Setup ALFA usb dongle
-  goto Network -> Wireless
-  click Scan
-  connect to an SSID
-  click save and apply
-  goto System -> Software
-  click update lists
-  install kmod-mt76x2u
-  reboot
-  goto Network -> Wireless
-  remove everything associated with the built in nic
-  click scan on radio1 and connect to SSID
+  goto Network -> Wireless<br>
+  click Scan<br>
+  connect to an SSID<br>
+  click save and apply<br>
+  goto System -> Software<br>
+  click update lists<br>
+  install kmod-mt76x2u<br>
+  reboot<br>
+  goto Network -> Wireless<br>
+  remove everything associated with the built in nic<br>
+  click scan on radio1 and connect to SSID<br>
+  click save and apply<br>
+### 4. Setup bridge
+  goto Network -> Interfaces
+  click on edit on the lan
+  set ip address to 10.42.1.1
+  click save and apply<br>
+  set computer network to dhcp
+  open browser and go to 192.168.1.1<br>
   
   
 ### 1. Install Tailscale on OpenWrt:
