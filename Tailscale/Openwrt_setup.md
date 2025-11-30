@@ -29,6 +29,9 @@
       File system: ext4
       Size: Use the default (all remaining space)
     Click Add.
+  #### 3. Apply changes
+    Click the green checkmark (✔) in the toolbar to apply all pending operations.
+    Wait for GParted to finish.
 
   
 ### 2. connect the rpi to a computer
