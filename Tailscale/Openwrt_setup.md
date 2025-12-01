@@ -3,37 +3,8 @@
 - none
 
 ### 1. Flash OpenWRT onto microSD card using balenaEtcher
-  after you have flashed the microSD card with openwrt
-  open a terminal and complete the following:
-  ```
-  sudo apt-get update
-  sudo apt-get update
-  sudo apt install gparted
-  sudo gparted
-  ```
-  make a mental note of the preexisting drive<br>
-  insert the usb reader into a ubuntu workstation<br>
-  click GParted -> Refresh devices
-  now on the right side drill down you should have the original and sda
-  select sda<br>
-  #### 1. Resize the second partition
-    Right-click on the second partition (/dev/sda2)
-    Select Resize/Move
-    Set the new size to 1GB
-    Click Resize/Move
-  #### 2. Create the third partition
-    Right-click on the unallocated space after the second partition.
-    Select New.
-    Choose:
-      Partition type: Primary
-      File system: ext4
-      Size: Use the default (all remaining space)
-    Click Add.
-  #### 3. Apply changes
-    Click the green checkmark (✔) in the toolbar to apply all pending operations.
-    Wait for GParted to finish.
-
-  
+  after you have flashed the microSD card with openwrt<br>
+  insert the microSD card into the rpi and boot<br>  
 ### 2. connect the rpi to a computer
   using a network cable<br>
   manually set computer to 192.168.1.2/255.255.255.0/192.168.1.1/8.8.8.8<br>
@@ -54,7 +25,45 @@
   click scan on radio1 and connect to SSID<br>
   click save and apply<br>
   verify connection by pinging openwrt.org
-### 4. Setup bridge
+### 4. Extend the disk space
+  goto System -> Software<br>
+  install fdisk and e2fsprogs<br>
+  either ssh or connect directly to openwrt and run:<br>
+  ```
+  fdisk -l /dev/mmcblk0
+  ```
+  this will output the beginning and endings of the partitions on the drive.<br>
+  you need to look for the Start location for /dev/mmcblk0p2<br>
+  for me, that was 147456<br>
+  now run:
+  ```
+  fdisk /dev/mmcblk0
+  ```
+  once fdisk is up, send to delete partition 2 (this does NOT delete the data):
+  ```
+  d
+  2
+  ```
+  recreate partition 2 using the start sector from above
+  ```
+  n
+  p
+  2
+  147456
+  <press enter>
+  w
+  ```
+  if prompted to remove the ext4 signature, type no<br>
+  power off the rpi<br>
+  remove the microSD card and plug it into a Ubuntu machine<br>
+  open up a terminal and run:
+  ```
+  sudo e2fsck -f /dev/sda2
+  sudo resize2fs /dev/sda2
+  ```
+  eject the card and put back into the openwrt rpi and boot<br>
+  verify that the disk space extends to the entire size of the microSD card<br>
+### 5. Setup bridge
   goto Network -> Interfaces<br>
   click on edit on the lan<br>
   set ip address to 10.42.1.1/24<br>
@@ -62,7 +71,7 @@
   set computer network to dhcp<br>
   open browser and go to 10.42.1.1<br>
   verify connection by pinging openwrt.org on both the router and the computer
-### 5. Setup Tailscale
+### 6. Setup Tailscale
   goto System -> Software<br>
   click update lists<br>
   install tailscale<br>
