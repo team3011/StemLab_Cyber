@@ -56,4 +56,14 @@
      sudo freeradius -X
      ```
   3. Connect to the SSID from a machine that has been added to the MAC list
+  4. Stop testing with:
+     ```
+     sudo pkill -9 freeradius
+     sudo lsof -i :1812
+     ```
+  5. Enable freeradius:
+     ```
+     sudo systemctl enable freeradius
+     sudo systemctl start freeradius
+     ```
       
