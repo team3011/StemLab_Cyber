@@ -67,3 +67,19 @@
      sudo systemctl start freeradius
      ```
       
+- **Step 6**: Adding a MAC to the RADIUS server
+  1. open users file:
+  ```
+  sudo nano /etc/freeradius/3.0/users
+  ```
+  2. Add entries for each device MAC:
+  ```
+  # Format: MAC as username, password same as MAC (or blank)
+  # do NOT include the colons
+  AABBCCDDEEFF   Cleartext-Password := "AABBCCDDEEFF"
+  ```
+  3. Save the file.
+  4. Run the following command to push the new users to the RADIUS server
+  ```
+  sudo systemctl kill -s HUP freeradius
+  ```
