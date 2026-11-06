@@ -1,7 +1,7 @@
 # WHS Cyber StemLab — Unified Master Documentation
 **Current Academic Year:** 2025–2026  
-**Last Updated:** November 2026 (Reflecting all infrastructure updates through 2026-07-22)  
-**Organization:** Wiesbaden High School Cyber Club ([Wiesbaden-Cyber](https://github.com/Wiesbaden-Cyber))  
+**Last Updated:** November 2026 (Live Proxmox Investigation & Hardware Audit Verified)  
+**Organization:** Wiesbaden High School Cyber Club ([Wiesbaden-Cyber](https://github.com/Wiesbaden-Cyber) / [team3011](https://github.com/team3011))  
 **Primary Domain:** `stemlab.lan`  
 **Public Service Domain:** `drinks.whslab.net`  
 **WAN Uplink:** Starlink Satellite (CGNAT — no inbound port forwarding)  
@@ -23,11 +23,13 @@
    - 3.2 [Core Switch: SillySwitch (Cisco Catalyst 3750X-48P)](#32-core-switch-sillyswitch-cisco-catalyst-3750x-48p)
    - 3.3 [Classroom Switch: SillyEdgeSwitch (Cisco Catalyst 2960)](#33-classroom-switch-sillyedgeswitch-cisco-catalyst-2960)
    - 3.4 [DHCP & DNS Allocation Table](#34-dhcp--dns-allocation-table)
-4. [Hypervisor Infrastructure: SillyProxmox](#4-hypervisor-infrastructure-sillyproxmox)
+4. [Hypervisor Infrastructure: SillyProxmox (Live Audited)](#4-hypervisor-infrastructure-sillyproxmox-live-audited)
    - 4.1 [Host Hardware & OS Specifications](#41-host-hardware--os-specifications)
-   - 4.2 [Linux Bridge & VLAN Configuration](#42-linux-bridge--vlan-configuration)
-   - 4.3 [ZFS Storage Pools](#43-zfs-storage-pools)
-   - 4.4 [VM & Container Inventory](#44-vm--container-inventory)
+   - 4.2 [Linux Bridge & Active Trunk Migration (enp4s0 & vmbr2)](#42-linux-bridge--active-trunk-migration-enp4s0--vmbr2)
+   - 4.3 [ZFS Storage Pools (NVMe + SAS)](#43-zfs-storage-pools-nvme--sas)
+   - 4.4 [Complete VM Inventory (Audited)](#44-complete-vm-inventory-audited)
+   - 4.5 [Complete Container Inventory (Audited)](#45-complete-container-inventory-audited)
+   - 4.6 [Host Watchdog & Automated Resilience (Windows DC Recovery)](#46-host-watchdog--automated-resilience-windows-dc-recovery)
 5. [Storage Infrastructure: SillyNAS (TrueNAS SCALE)](#5-storage-infrastructure-sillynas-truenas-scale)
    - 5.1 [Dual-NIC Network Architecture](#51-dual-nic-network-architecture)
    - 5.2 [ZFS Storage Pools & VDEVs](#52-zfs-storage-pools--vdevs)
@@ -35,7 +37,7 @@
 6. [Active Directory & Identity: stemlab.lan](#6-active-directory--identity-stemlablan)
    - 6.1 [Domain Architecture & FSMO Roles](#61-domain-architecture--fsmo-roles)
    - 6.2 [User & Computer Account Conventions](#62-user--computer-account-conventions)
-   - 6.3 [DNS Architecture & Forwarding](#63-dns-architecture--forwarding)
+   - 6.3 [DNS Architecture & Multi-Tier Resolution](#63-dns-architecture--multi-tier-resolution)
    - 6.4 [Group Policy Objects (GPOs)](#64-group-policy-objects-gpos)
    - 6.5 [NTP Time Synchronization Architecture](#65-ntp-time-synchronization-architecture)
    - 6.6 [Trust Relationship & Break-Glass Local Admin Hardening](#66-trust-relationship--break-glass-local-admin-hardening)
@@ -68,15 +70,16 @@
 The **WHS Cyber StemLab** provides an enterprise-grade computing and networking testbed for cybersecurity, robotics, and coding students at Wiesbaden High School. 
 
 ### From StemLab Mk2 to StemLab 25–26 Rebuild
-- **Legacy Architecture (StemLab Mk2, 2023–2025):** Divided physically and logically between `Stemlab.lan` (192.168.100.x) and `Cyber.lan` (172.16.1.x) with dual pfSense firewalls, OpenMediaVault (OMV) storage, and fragmented Linksys access points. This caused routing loops, maintenance sprawl, and fragile domain trusts.
+- **Legacy Architecture (StemLab Mk2, 2023–2025):** Divided physically and logically between `Stemlab.lan` (`192.168.100.x`) and `Cyber.lan` (`172.16.1.x`) with dual pfSense firewalls, OpenMediaVault (OMV) storage, and fragmented Linksys access points. This caused routing loops, maintenance sprawl, and fragile domain trusts.
 - **The Ground-Up Rebuild (2025–2026):** Following the 2024–2025 academic year, WHS Cyber leadership decommissioned the legacy stack to construct a unified, professional architecture centered on:
   1. A single authoritative routing core (**Cisco ISR C1112**) using IEEE 802.1Q subinterfaces.
   2. Enterprise Layer 2 PoE switching (**Cisco Catalyst 3750X & 2960**).
   3. Strict VLAN segmentation (Lab, Classroom, Guest, Management).
-  4. Centralized enterprise hypervisor (**Proxmox VE 9.1.4**) and unified network storage (**TrueNAS SCALE 25.04**).
-  5. Authoritative Active Directory (`stemlab.lan`) powered by **Windows Server 2025** with automated break-glass resiliency and external Stratum-2 NTP synchronization.
-  6. Centralized Aruba Instant 802.11ac wireless backed by **FreeRADIUS** MAC/802.1X authentication.
-  7. Production containerized student services (`stemlab-drinks`) routed safely through Cloudflare Zero Trust Tunnels.
+  4. Centralized enterprise hypervisor (**Proxmox VE 9.2.0**, Kernel `6.17.4-2-pve`) featuring high-speed NVMe storage and dedicated multi-port Intel I350 NICs.
+  5. Unified network storage (**TrueNAS SCALE 25.04.2.6**).
+  6. Authoritative Active Directory (`stemlab.lan`) powered by **Windows Server 2025** with automated break-glass resiliency and external Stratum-2 NTP synchronization.
+  7. Centralized Aruba Instant 802.11ac wireless backed by **FreeRADIUS** MAC/802.1X authentication.
+  8. Production containerized student services (`stemlab-drinks`) routed safely through Cloudflare Zero Trust Tunnels.
 
 ---
 
@@ -86,10 +89,10 @@ The **WHS Cyber StemLab** provides an enterprise-grade computing and networking 
 
 | VLAN ID | Name | Subnet | Gateway / CIDR | Primary DNS | DHCP Scope / Helper | Purpose |
 |:---:|:---|:---|:---|:---|:---|:---|
-| **10** | **Lab** | `172.16.10.0/24` | `172.16.10.1` | `8.8.8.8`, `1.1.1.1` | `172.16.10.26`–`.254` (Opt 66/67) | Server infrastructure, dev VMs, worker nodes, iPXE boot, `dolus` drink server. |
-| **20** | **Classroom** | `172.16.20.0/24` | `172.16.20.1` | `172.16.20.20` (DC) | `172.16.20.26`–`.254` | Domain workstations (Z230 PCs, robotics laptops), AD services, TrueNAS data. |
+| **10** | **Lab** | `172.16.10.0/24` | `172.16.10.1` | `8.8.8.8`, `1.1.1.1` | `172.16.10.26`–`.254` (Opt 66/67) | Server infrastructure, dev VMs, worker nodes, iPXE boot, `dolus` drink server, secondary DNS. |
+| **20** | **Classroom** | `172.16.20.0/24` | `172.16.20.1` | `172.16.20.20` (DC) | `172.16.20.26`–`.254` | Domain workstations (Z230 PCs, robotics laptops), AD services, TrueNAS data, Home Assistant. |
 | **30** | **Guest** | `172.16.30.0/24` | `172.16.30.1` | `8.8.8.8`, `1.1.1.1` | `172.16.30.6`–`.254` | Isolated guest WiFi; internet egress only; strictly no inter-VLAN routing. |
-| **67** | **Management**| `172.16.67.0/28` | `172.16.67.1` | `8.8.8.8`, `1.1.1.1` | Static only (`.1`–`.14`) | Out-of-band switches, router management, Proxmox host, TrueNAS web, AP VCs. |
+| **67** | **Management**| `172.16.67.0/28` | `172.16.67.1` | `8.8.8.8`, `1.1.1.1` | Static only (`.1`–`.14`) | Out-of-band switches, router management, Proxmox host, TrueNAS web, AP VCs, Tailscale relay. |
 
 ### 2.2 Physical & Logical Topology
 
@@ -115,19 +118,29 @@ The **WHS Cyber StemLab** provides an enterprise-grade computing and networking 
            ┌─────────────────────────┘   │   │   └─────────────────────────┐
            │ Gi1/0/25                    │   │ Gi1/0/27                    │ Gi1/0/1-4, 43
            │ Trunk (10,20,30,67)         │   │ Trunk (VLAN 20)             │ Trunk (10,20,30,67)
+           │ (enp4s0f0 / vmbr2)          │   │                             │
 ┌──────────▼──────────┐                  │   │                  ┌──────────▼──────────┐
 │    SillyProxmox     │                  │   │                  │   Aruba APIN0205    │
-│  Proxmox VE 9.1.4   │                  │   │                  │  Instant AP Cluster │
+│  Proxmox VE 9.2.0   │                  │   │                  │  Instant AP Cluster │
 │   172.16.67.3/28    │                  │   │                  │   172.16.67.6 (VC)  │
 └──────────┬──────────┘                  │   │                  └─────────────────────┘
-           │ Tagged Bridges              │   │
+           │ Active vmbr2 Bridges        │   │
            ├─ CT 100: Tailscale (Relay)  │   │
-           ├─ CT 200: China-Mode (GFW)   │   │
-           ├─ VM 101: OPNsense-Redstone  │   │
+           ├─ CT 112: DNS-Secondary      │   │
+           ├─ CT 114: DNS-2ndSecondary   │   │
+           ├─ CT 200: China-Mode Pi-hole │   │
+           ├─ VM 101: OPNsense (Testing) │   │
+           ├─ VM 102: Worker-1 (14 Core) │   │
+           ├─ VM 103: PXE Boot Server    │   │
            ├─ VM 104: DO-Local-Ubuntu    │   │
            ├─ VM 105: WinServer1776 (DC) │   │
+           ├─ VM 106: UBUNTU-SERVER      │   │
            ├─ VM 107: FreeRADIUS + CA    │   │
-           └─ VM 109: CDS-n8n Engine     │   │
+           ├─ VM 108: VM 108             │   │
+           ├─ VM 109: CDS-n8n Engine     │   │
+           ├─ VM 110: velocitee Node     │   │
+           ├─ VM 111: Wazuh SIEM         │   │
+           └─ VM 113: Home Assistant     │   │
                                          │   │
            ┌─────────────────────────────┘   └─────────────┐
            │ Gi1/0/26 (Trunk)                              │
@@ -149,7 +162,7 @@ The **WHS Cyber StemLab** provides an enterprise-grade computing and networking 
 | **SillyRouter** | Edge Router / DHCP / Inter-VLAN Gateway | Cisco ISR C1112-8PLTEEA | IOS XE 17.06.01a | `172.16.67.1` |
 | **SillySwitch** | Core Distribution & PoE Switch | Cisco Catalyst WS-C3750X-48P | IOS 15.0(2)SE | `172.16.67.2` |
 | **SillyEdgeSwitch** | Classroom Access Switch | Cisco Catalyst 2960-24TT-L | IOS 15.0(2)SE11 | `172.16.67.5` |
-| **SillyProxmox** | Virtualization Hypervisor | 24-core x86_64, 96 GB RAM, 2.6 TB ZFS | Proxmox VE 9.1.4 (Kernel 6.17) | `172.16.67.3` |
+| **SillyProxmox** | Virtualization Hypervisor | Intel Xeon E5-2680 v3, 94 GB RAM, 2.77 TB ZFS | Proxmox VE 9.2.0 (Kernel `6.17.4-2-pve`) | `172.16.67.3` |
 | **SillyNAS** | Enterprise Storage (SMB/NFS) | 4-bay x86_64 Server, 4x NICs | TrueNAS SCALE 25.04.2.6 | `172.16.67.4` (Mgmt) / `172.16.20.25` (Data) |
 | **Aruba APs** | Wireless Access Cluster (x3+) | Aruba APIN0205 (Converted IAP) | ArubaOS 6.5.4.15 Taurus | `172.16.67.6` (Virtual Controller) |
 | **dolus** | Bare-Metal/Dedicated Server | Ubuntu Workstation / Server | Ubuntu 24.04 LTS | `172.16.10.58` |
@@ -160,7 +173,7 @@ The **WHS Cyber StemLab** provides an enterprise-grade computing and networking 
 |:---|:---|:---|:---|:---|:---|
 | **Starlink Dish** | Ethernet Out | SillyRouter | `Gi0/0/0` | CAT6 UTP | WAN (DHCP via Starlink CGNAT) |
 | **SillyRouter** | `Gi0/1/0` | SillySwitch | `Gi1/0/48` | CAT6 UTP | 802.1Q Trunk (10, 20, 30, 67 Native) |
-| **SillySwitch** | `Gi1/0/25` | SillyProxmox | `enp8s0f1` | CAT6 UTP | 802.1Q Trunk (10, 20, 30, 67 Native) |
+| **SillySwitch** | `Gi1/0/25` | SillyProxmox | `enp4s0f0` | CAT6 UTP | 802.1Q Master Trunk (Carries `vmbr2`) |
 | **SillySwitch** | `Gi1/0/26` | SillyNAS | `enp15s0` | CAT6 UTP | 802.1Q Trunk (VLAN 20 Data access) |
 | **SillySwitch** | `Gi1/0/30` | SillyNAS | `enp14s0` | CAT6 UTP | Access VLAN 67 (Dedicated Mgmt NIC) |
 | **SillySwitch** | `Gi1/0/27` | SillyEdgeSwitch | `Gi0/1` | CAT6 UTP | Trunk / Access VLAN 20 (Classroom link) |
@@ -174,7 +187,8 @@ Because Starlink provides only CGNAT IPv4 addresses with no inbound port forward
 
 ```
 Tailscale Mesh (100.x.x.x)
-├── 100.112.34.75   lab-access-pve-ct100      (Linux CT on Proxmox; Subnet Relay to 172.16.67.0/28)
+├── 100.112.34.75   lab-access-pve-ct100      (Linux CT 100 on Proxmox; Subnet Relay to 172.16.67.0/28)
+├── 100.68.220.93   velocitee-node            (Active Linux node)
 ├── 100.83.36.66    indasky314-latitude-5400  (Operator Linux Laptop - authorized management)
 ├── 100.101.252.125 glkvm                     (Out-of-band hardware KVM)
 ├── 100.99.26.112   desktop-d5qip0j           (Lab desktop node)
@@ -205,13 +219,7 @@ Tailscale Mesh (100.x.x.x)
 - **Model:** WS-C3750X-48P-L (48 Gigabit PoE Ports, Serial: `FDO1436K1FE`)
 - **Firmware:** Cisco IOS 15.0(2)SE
 - **VTP Configuration:** Transparent mode (`vtp mode transparent`)
-- **Spanning Tree:** Rapid-PVST with BPDU Guard error-recovery enabled:
-  ```cisco
-  spanning-tree mode pvst
-  spanning-tree extend system-id
-  errdisable recovery cause bpduguard
-  errdisable recovery interval 300
-  ```
+- **Spanning Tree:** Rapid-PVST with BPDU Guard error-recovery enabled.
 - **Management SVI:** `interface Vlan67` with IP `172.16.67.2 255.255.255.240`, default gateway `172.16.67.1`.
 - **Trunk Ports:** `GigabitEthernet1/0/1` through `1/0/4`, `1/0/25`, `1/0/26`, `1/0/48` set to `switchport trunk encapsulation dot1q` and `switchport mode trunk`.
 
@@ -223,14 +231,15 @@ Tailscale Mesh (100.x.x.x)
 
 ### 3.4 DHCP & DNS Allocation Table
 
-The Cisco ISR 1112 manages DHCP services for the entire laboratory:
-
 ```cisco
 ! Excluded Static Allocations
 ip dhcp excluded-address 172.16.10.1 172.16.10.25    ! Lab Infrastructure
 ip dhcp excluded-address 172.16.10.58                ! dolus (drinks service)
-ip dhcp excluded-address 172.16.10.91                ! Reserved Lab Host
+ip dhcp excluded-address 172.16.10.60                ! velocitee VM 110
+ip dhcp excluded-address 172.16.10.61                ! WazuhSIEM VM 111
+ip dhcp excluded-address 172.16.10.34                ! dns-secondary CT 112
 ip dhcp excluded-address 172.16.20.1 172.16.20.25    ! Classroom Infrastructure
+ip dhcp excluded-address 172.16.20.22                ! DNS-2ndSecondary CT 114
 ip dhcp excluded-address 172.16.20.100               ! FreeRADIUS CA Server
 ip dhcp excluded-address 172.16.30.1 172.16.30.5     ! Guest AP Gateways
 ip dhcp excluded-address 172.16.67.1 172.16.67.15    ! All VLAN 67 Management (Static Only)
@@ -256,75 +265,123 @@ ip dhcp pool GUEST
 
 ---
 
-## 4. Hypervisor Infrastructure: SillyProxmox
+## 4. Hypervisor Infrastructure: SillyProxmox (Live Audited)
 
 ### 4.1 Host Hardware & OS Specifications
-- **Hostname:** `pve`
-- **OS:** Proxmox VE 9.1.4 (Debian 13 "Trixie" base, Kernel `6.17.4-2-pve`)
-- **Compute:** 24 CPU cores / 48 threads across dual Intel Xeon processors
-- **Memory:** 96 GB DDR4 ECC Registered RAM
-- **Primary Host IP:** `172.16.67.3/28` (Web UI: `https://172.16.67.3:8006`)
+- **Hostname:** `pve` (FQDN: `pve.lab`)
+- **OS Version:** Proxmox VE **9.2.0** (PVE Manager version `9.2.3/d0fde103346cf89a`, Debian 13 "Trixie" base)
+- **Linux Kernel:** `6.17.4-2-pve`
+- **CPU:** Intel(R) Xeon(R) CPU E5-2680 v3 @ 2.50GHz (1 Socket, 12 Cores / 24 Threads)
+- **RAM:** 94 GiB Total (51 GiB Active Allocations, 43 GiB Buffer/Available, Swap: 0B)
+- **Primary Host IP:** `172.16.67.3/28` (Web GUI: `https://172.16.67.3:8006`)
 
-### 4.2 Linux Bridge & VLAN Configuration (`/etc/network/interfaces`)
+### 4.2 Linux Bridge & Active Trunk Migration (`enp4s0` & `vmbr2`)
+
+During recent infrastructure enhancements, a **4-port Intel I350 NIC** was installed (`enp4s0f0`–`enp4s0f3`) to offload hypervisor management and VM traffic. As verified from live `/etc/network/interfaces`:
+
+- **`vmbr2` (Active Management Trunk):** Connected to `enp4s0f0`, statically assigned `172.16.67.3/28` (Gateway `172.16.67.1`). It is VLAN-aware (`bridge-vids 2-4094`) and carries all production VM/LXC tagged traffic.
+- **`vmbr1` (Legacy Trunk):** Commented out in `/etc/network/interfaces`. All virtual machines and containers have been fully migrated to `vmbr2`.
+- **`vmbr0` (Untagged Lab Access):** Bound to `enp8s0f0` pulling DHCP address `192.168.1.44/24`.
+- **`vmbr3` (OPNsense Dev Trunk):** Configured on `enp8s0f1` as a VLAN-aware bridge for internal firewall experiments.
 
 ```ini
+# /etc/network/interfaces (Audited Live)
 auto lo
 iface lo inet loopback
 
-# Physical Dual-Port 10GbE/1GbE Controller
+# 2-port Intel I350 (Stage 2 OPNsense)
 auto enp8s0f0
 iface enp8s0f0 inet manual
 
 auto enp8s0f1
 iface enp8s0f1 inet manual
 
-# vmbr0 — Untagged Lab Access Bridge (DHCP)
+# 4-port Intel I350 (Taking over Proxmox management roles)
+auto enp4s0f0
+iface enp4s0f0 inet manual
+
 auto vmbr0
 iface vmbr0 inet dhcp
     bridge-ports enp8s0f0
     bridge-stp off
     bridge-fd 0
 
-# vmbr1 — VLAN-Aware Master Trunk Bridge
-auto vmbr1
-iface vmbr1 inet static
+auto vmbr2
+iface vmbr2 inet static
     address 172.16.67.3/28
     gateway 172.16.67.1
-    bridge-ports enp8s0f1
+    bridge-ports enp4s0f0
     bridge-stp off
     bridge-fd 0
     bridge-vlan-aware yes
     bridge-vids 2-4094
 
-# vmbr2 — Isolated Internal Bridge (No Uplink, Dev Testing)
-auto vmbr2
-iface vmbr2 inet manual
-    bridge-ports none
+auto vmbr3
+iface vmbr3 inet manual
+    bridge-ports enp8s0f1
     bridge-stp off
     bridge-fd 0
     bridge-vlan-aware yes
     bridge-vids 2-4094
 ```
 
-### 4.3 ZFS Storage Pools (`/etc/pve/storage.cfg`)
-- **`local` (Directory):** Mount path `/var/lib/vz` (Stores ISOs, VZ container templates, and manual backup dumps).
-- **`local-zfs` (ZFS Pool):** Bound to `rpool/data` (Stores dynamic thin-provisioned RAW VM disk images and LXC rootfs containers).
+### 4.3 ZFS Storage Pools (NVMe + SAS)
+- **Pool Name:** `rpool` (Status: `ONLINE`, 0 errors, last scrubbed Oct 2026)
+- **Raw Pool Size:** 2.77 TB (246 GB Allocated for VMs/LXCs, 2.41 TB Free)
+- **Underlying Disks:**
+  * `nvme0n1`: 953.9 GB NVMe SSD (`part3`)
+  * `nvme1n1`: 953.9 GB NVMe SSD (`part3`)
+  * `sda`: 1.1 TB SAS/SCSI Enterprise SSD (`part3`)
+- **Proxmox Datastores:**
+  * `local`: Directory datastore at `/var/lib/vz` (ISOs, backups, templates, snippets).
+  * `local-zfs`: Thin-provisioned ZFS dataset at `rpool/data` (LXC subvols and VM raw zvols).
 
-### 4.4 VM & Container Inventory
+### 4.4 Complete VM Inventory (Audited)
 
-| VMID | Name | Type | vCPU | RAM | Disk | VLAN Tag | IP Address | Status | Boot Policy | Role & Operational Function |
-|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---|:---:|:---:|:---|
-| **100** | `Tailscale` | LXC | 1 | 256M | 12G | `vmbr1` (67) | `172.16.67.9` / `100.112.34.75` | Running | `onboot: 1` | Tailscale relay & subnet router (unprivileged + TUN passthrough). |
-| **101** | `OPNsense-Redstone`| QEMU | 4 | 16G | 64G | `vmbr0`+`vmbr2` | DHCP / Internal | Running | `onboot: 1` | Experimental firewall, routing dev, captive portal testing. |
-| **102** | `Worker-1` | QEMU | 16 | 16G | 32G | `vmbr0` (10) | DHCP | Stopped | `onboot: 0` | Heavy compute worker node, automated compilation, NUMA enabled. |
-| **103** | `PXE` | QEMU | 1 | 4G | 40G | `vmbr1` (10) | `172.16.10.3` | Stopped | `onboot: 0` | iPXE / TFTP network installer for student workstations. |
-| **104** | `DO-Local-Ubuntu` | QEMU | 4 | 8G | 40G | `vmbr1` (10) | `172.16.10.x` | Running | `onboot: 1` | Internal Linux services & student developer sandbox. |
-| **105** | `WindowsServer1776`| QEMU | 9 | 8G | 70G | `vmbr1` (20) | `172.16.20.20` | Running | `onboot: 1` | **Primary Domain Controller (`stemlab.lan`)**, AD DS, DNS, File Server. |
-| **106** | `ADDC` | QEMU | 4 | 4G | 32G | `vmbr0` (20) | `172.16.20.22` | Stopped | `onboot: 0` | Secondary Standby DC (configured for disaster recovery). |
-| **107** | `FreeRADIUS-CA` | QEMU | 4 | 8G | 32G | `vmbr1` (20) | `172.16.20.100`| Running | `onboot: 1` | FreeRADIUS 3.0 authentication engine + Local Certificate Authority. |
-| **108** | `VM 108` | QEMU | 4 | 2G | 24G | `vmbr1` (10) | DHCP | Running | `onboot: 0` | General Linux utility instance. |
-| **109** | `CDS-n8n` | QEMU | 1 | 16G | 40G | `vmbr1` (10) | `172.16.10.x` | Running | `onboot: 1` | n8n workflow engine for automated alerts and club operations. |
-| **200** | `china-mode` | LXC | 2 | 1G | 8G | `vmbr1` (20) | `172.16.20.21` | Stopped | `onboot: 0` | GFW educational simulator (Pi-hole, Nginx, Mitmproxy). |
+| VMID | Name | Status | vCPU | RAM | Disk | Bridge / VLAN | Assigned IP | Boot | Role & Purpose |
+|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---|:---:|:---|
+| **101** | `OPNsense-Redstone` | Stopped | 4 (2s×2c) | 8 GB | 32 GB | `vmbr0`, `vmbr3`, `vmbr2` | DHCP / Internal | `onboot: 1` | Experimental virtual firewall and captive portal sandbox. |
+| **102** | `Worker-1` | **Running** | 14 cores | 16 GB | 150 GB | `vmbr2` (VLAN 10) | `172.16.10.82` (DHCP) | `onboot: 1` | High-compute worker node for compilation, automated builds, and testing. |
+| **103** | `PXE` | **Running** | 1 core | 4 GB | 40 GB | `vmbr2` (VLAN 10) | `172.16.10.3` (Static) | `onboot: 0` | Debian 13 iPXE / TFTP netboot server for student PC imaging. |
+| **104** | `DO-Local-Ubuntu-Server` | Stopped | 4 (2s×2c) | 8 GB | 40 GB | `vmbr2` (VLAN 10) | `172.16.10.x` | `onboot: 1` | Ubuntu 24.04 local developer sandbox. |
+| **105** | `WindowsServer1776` | **Running** | 9 (3s×3c) | 8 GB | 70 GB | `vmbr2` (VLAN 20) | `172.16.20.20` (Static) | `onboot: 1` | **Primary Domain Controller (`stemlab.lan`)**, AD DS, DNS, File Server. Monitored by watchdog. |
+| **106** | `UBUNTU-SERVER` | **Running** | 4 (2s×2c) | 8 GB | 32 GB | `vmbr2` (VLAN 20) | `172.16.20.x` (DHCP) | `onboot: 1` | Re-provisioned Ubuntu Server 24.04 general services host (formerly ADDC). |
+| **107** | `FreeRADIUS-CA` | **Running** | 4 (2s×2c) | 8 GB | 32 GB | `vmbr2` (VLAN 20) | `172.16.20.100` (Static)| `onboot: 1` | FreeRADIUS 3.0 authentication engine + Local Certificate Authority. |
+| **108** | `VM 108` | Stopped | 4 cores | 2 GB | 24 GB | `vmbr2` (VLAN 10) | DHCP | `onboot: 0` | Ubuntu 24.04 utility VM. |
+| **109** | `CDS-n8n` | Stopped | 1 core | 16 GB | 40 GB | `vmbr2` (VLAN 10) | `172.16.10.x` | `onboot: 1` | n8n workflow automation platform for club operations. |
+| **110** | `velocitee` | Stopped | 2 cores | 4 GB | 20 GB | `vmbr2` (VLAN 10) | `172.16.10.60` (Static) | `onboot: 1` | Velocitee provisioning engine node. |
+| **111** | `WazuhSIEM` | Stopped | 8 cores | 16 GB | 100 GB | `vmbr2` (VLAN 10) | `172.16.10.61` (Static) | `onboot: 0` | Wazuh SIEM appliance for centralized security log collection. |
+| **113** | `homeassistant` | **Running** | 2 cores | 8 GB | 50 GB | `vmbr2` (VLAN 20) | `172.16.20.x` (DHCP) | `onboot: 1` | Home Assistant OS IoT controller for smart lab hardware. |
+
+### 4.5 Complete Container Inventory (Audited)
+
+| VMID | Hostname | Status | Cores | RAM | Rootfs | Bridge / VLAN | Assigned IP | Boot | Operational Role |
+|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---|:---:|:---|
+| **100** | `Tailscale` | **Running** | 1 | 256 MB | 12 GB | `vmbr2` | `172.16.67.9/28` (LAN)<br>`100.112.34.75` (Tailscale) | `onboot: 1` | Subnet relay node providing remote admin access into `172.16.67.0/28`. Unprivileged, TUN passthrough. |
+| **112** | `dns-secondary` | **Running** | 1 | 512 MB | 8 GB | `vmbr2` | `172.16.10.34/24` (VLAN 10) | `onboot: 0` | Secondary internal DNS resolver node on the Lab network. |
+| **114** | `DNS-2ndSecondary`| **Running** | 3 | 512 MB | 8 GB | `vmbr2` | `172.16.20.22/24` (VLAN 20) | `onboot: 0` | Redundant secondary DNS resolver node on the Classroom network. |
+| **200** | `Pi-hole` | Stopped | 2 | 1024 MB| 8 GB | `vmbr2` (VLAN 20) | `172.16.20.21/24` (Static) | `onboot: 0` | Core DNS sinkhole for "China Mode" GFW CTF educational simulations. |
+
+### 4.6 Host Watchdog & Automated Resilience (Windows DC Recovery)
+
+To prevent domain service outages caused by unexpected shutdowns or resource exhaustion on VM 105 (`WindowsServer1776`), an automated watchdog daemon runs on the Proxmox host:
+
+- **Watchdog Script (`/root/auto_restart_windows.sh`):**
+  ```bash
+  #!/bin/bash
+  VMID="105"
+
+  # Check if the Windows DC VM is currently stopped
+  if ! qm status $VMID | grep -q "running"; then
+      echo "Windows Server VM $VMID is stopped. Booting it back up..."
+      /usr/sbin/qm start $VMID
+  fi
+  ```
+- **Automated Scheduling:** Enforced via root crontab on `pve`:
+  ```cron
+  * * * * * /root/auto_restart_windows.sh >/dev/null 2>&1
+  ```
+  Runs every 60 seconds, ensuring zero extended downtime for Active Directory, DNS, and student home shares.
 
 ---
 
@@ -373,14 +430,14 @@ SillyNAS runs **TrueNAS SCALE 25.04.2.6** and physically enforces network segreg
   * `ROBOTICS-###`: Mobile coding and robotics Dell laptops (VLAN 20).
   * `DESKTOP-Z230-###`: Specialized lab benches (VLAN 10).
 
-### 6.3 DNS Architecture & Forwarding
-Windows Server DNS runs on `172.16.20.20` and serves as the authoritative resolver for VLAN 20 clients:
-- **Authoritative Zones:** `stemlab.lan` (Active Directory Integrated) and `_msdcs.stemlab.lan`.
-- **Static Host Records:**
-  * `win-upu3jkf7n79.stemlab.lan` → `172.16.20.20`
-  * `freeradius.stemlab.lan` → `172.16.20.100`
-  * `sillynas.stemlab.lan` → `172.16.20.25` (Data) & `172.16.67.4` (Mgmt)
-- **External Forwarders:** Cisco Umbrella / Cloudflare / Google (`1.1.1.1`, `8.8.8.8`).
+### 6.3 DNS Architecture & Multi-Tier Resolution
+- **Primary Resolver (VLAN 20):** Windows Server DNS runs on `172.16.20.20` (`WIN-UPU3JKF7N79`).
+  * Authoritative for `stemlab.lan` and `_msdcs.stemlab.lan`.
+  * Reverse lookup zones for `172.16.20.x` and `172.16.10.x`.
+- **Secondary Resolvers (Containers):**
+  * `dns-secondary` (CT 112, `172.16.10.34`): Lab network cache and secondary resolver.
+  * `DNS-2ndSecondary` (CT 114, `172.16.20.22`): Classroom network redundant resolver.
+- **External Forwarders:** Public recursive resolvers (`1.1.1.1`, `8.8.8.8`).
 
 ### 6.4 Group Policy Objects (GPOs)
 
@@ -618,11 +675,12 @@ When recovering the laboratory from a total power outage or hardware refresh, re
 2. **SillyRouter (Cisco ISR 1112):** Boot router; verify WAN acquisition on `Gi0/0/0`.
 3. **SillySwitch (Cisco 3750X):** Power on core switch; confirm trunks establish on port 48.
 4. **SillyNAS (TrueNAS SCALE):** Power on storage server; verify ZFS pool import and SMB services.
-5. **SillyProxmox:** Boot hypervisor; verify `vmbr1` static IP `172.16.67.3`.
-6. **Core Proxmox VMs:**
-   - Auto-starts VM 105 (`WindowsServer1776`). Verify DNS resolution on port 53.
+5. **SillyProxmox:** Boot hypervisor; verify `vmbr2` static IP `172.16.67.3` on `enp4s0f0`.
+6. **Core Proxmox VMs & Containers:**
+   - Auto-starts VM 105 (`WindowsServer1776`). Monitored by `/root/auto_restart_windows.sh`. Verify DNS on port 53.
    - Auto-starts VM 107 (`FreeRADIUS`).
    - Auto-starts CT 100 (`Tailscale`).
+   - Auto-starts VM 102 (`Worker-1`), VM 106 (`UBUNTU-SERVER`), VM 113 (`homeassistant`).
 7. **SillyEdgeSwitch (Cisco 2960):** Power on classroom switch.
 8. **Aruba Wireless APs:** Power on PoE ports; confirm Virtual Controller synchronization.
 9. **dolus (`stemlab-drinks`):** Confirm Docker Compose stack startup.
@@ -668,6 +726,7 @@ Add-Computer -DomainName "stemlab.lan" -Credential STEMLAB\Administrator -Restar
 | Component | Maintenance Task | Cadence | Procedure |
 |:---|:---|:---:|:---|
 | **Domain Controller** | NTP Source Audit | Monthly | `w32tm /query /source` must show external NTP pool, never local clock. |
+| **DC Watchdog** | Script & Cron Verification | Monthly | Verify `/root/auto_restart_windows.sh` runs via cron; verify `qm status 105`. |
 | **Active Directory** | Stale Computer Cleanup | Quarterly | Run `Get-ADComputer -Filter * -Properties PasswordLastSet` to prune decommissioned PCs. |
 | **Local Admin Password** | Break-Glass Password Rotation | Bi-Annually | Update password in `\\stemlab.lan\NETLOGON\enforce-local-admin.ps1`. |
 | **dolus / drinks** | Order Database Vacuum & Prune | Monthly | Verify 24h retention auto-purge job; check database size with `psql`. |
